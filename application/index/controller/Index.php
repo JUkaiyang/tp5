@@ -1,7 +1,11 @@
 <?php
 namespace app\index\controller;
 
-class Index
+use think\Controller;
+use think\facade\Request;
+use app\index\validate\BaseValidate;
+use app\index\model\Mcenter as McenterModel;
+class Index extends Controller
 {
     public function index()
     {
@@ -11,5 +15,49 @@ class Index
     public function hello($name = 'ThinkPHP5')
     {
         return 'hello,' . $name;
+    }
+
+    public function getIndex(){
+        if(Request::has("username","post")&&Request::has("password","post")){
+            $strName = Request::post("username");//用户名
+            $strName = trim($strName);
+            $strPassword = Request::post("password");//用户密码
+            $strPassword  = md5(md5(trim($strPassword)));
+            $validata = new BaseValidate();//实例化验证器
+            $arrdate = [
+                "username"=>$strName,
+                "password"=>$strPassword
+            ];
+            $result = $validata->check($arrdate);
+            if(!$result){
+                echo $validata->getError();
+            }
+//            $arrUser = $this->getUserInfo($strName);
+            $arrUser = McenterModel::where("user_name","eq",$strName)->find();
+            if($arrUser['password'] == $strPassword){
+                return $this->fetch("main");
+            }else{
+                exception('密码错误');
+            }
+
+        }
+        return $this->fetch("login");
+
+    }
+
+    /**
+     * @param $userId   用户id
+     * @param $filed    指定查询的字段
+     * @return 返回的用户信息
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getUserInfo($username,$filed){
+        if(empty($filed)){
+            $filed = "*";
+        }
+         $arrUser = McenterModel::where("user_name","eq",$username)->field($filed)->find();
+         return $arrUser;
     }
 }
