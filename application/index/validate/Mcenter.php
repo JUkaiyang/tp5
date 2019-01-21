@@ -9,7 +9,16 @@
 namespace app\index\validate;
 
 
-class Mcenter
+class Mcenter extends BaseValidate
 {
+    protected $rule = [
+        "username"=>"require|chsAlpha",
+        "password"=>"require"
+    ];
 
+    protected  $msg = [
+        "name_require"=>"姓名必须填写",
+        "name_chs"=>"姓名必须是汉字,字母",
+        "password_require"=>"姓名不能为空"
+    ];
 }

@@ -9,7 +9,19 @@
 namespace app\index\validate;
 
 
-class BaseValidate
+use think\facade\Request;
+use think\Validate;
+
+class BaseValidate extends Validate
 {
+
+
+  public function goCheck(){
+      $arrParam = Request::param();
+      if(!$this->check($arrParam)){
+
+      }
+
+  }
 
 }

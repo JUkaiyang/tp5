@@ -15,6 +15,7 @@ Route::get('think', function () {
 
 Route::get('hello/:name', 'index/hello');
 Route::get('userInfo/:id', 'mcenter/userInfo');
+Route::any("login",'index/getIndex');
 
 return [
 

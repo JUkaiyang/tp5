@@ -5,6 +5,8 @@ use think\Controller;
 use think\facade\Request;
 use app\index\validate\BaseValidate;
 use app\index\model\Mcenter as McenterModel;
+use think\facade\Session;
+
 class Index extends Controller
 {
     public function index()
@@ -17,6 +19,11 @@ class Index extends Controller
         return 'hello,' . $name;
     }
 
+    /**
+     * 是对用用户的登录进行验证和存储session ,cookic
+     * @return mixed会根据用户状态进行页面放返回；
+     * @throws \Exception错误会进行错误提醒；
+     */
     public function getIndex(){
         if(Request::has("username","post")&&Request::has("password","post")){
             $strName = Request::post("username");//用户名
@@ -32,32 +39,20 @@ class Index extends Controller
             if(!$result){
                 echo $validata->getError();
             }
-//            $arrUser = $this->getUserInfo($strName);
-            $arrUser = McenterModel::where("user_name","eq",$strName)->find();
+            $mcenter = new McenterModel();
+
+            $arrUser = $mcenter->getUseInfo($strName,'*');
             if($arrUser['password'] == $strPassword){
+                $strToke = $arrUser.time();
+                Session::set("username",$strToke);//存用户名进session
+                setcookie("username",$strToke);//存用户名进cookic
                 return $this->fetch("main");
             }else{
                 exception('密码错误');
             }
-
         }
         return $this->fetch("login");
-
     }
 
-    /**
-     * @param $userId   用户id
-     * @param $filed    指定查询的字段
-     * @return 返回的用户信息
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function getUserInfo($username,$filed){
-        if(empty($filed)){
-            $filed = "*";
-        }
-         $arrUser = McenterModel::where("user_name","eq",$username)->field($filed)->find();
-         return $arrUser;
-    }
+
 }
